@@ -1,0 +1,9 @@
+compile_commands.json
+gsrap.egg-info
+dist/
+build/
+.cache/
+_skbuild
+.venv
+venv
+__pycache__

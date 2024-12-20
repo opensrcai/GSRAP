@@ -1,0 +1,95 @@
+name: build-and-test
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+jobs:
+  build-and-test-on-linux:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        clang_version: [14, 15, 16, 17, 18, 20]
+    steps:
+      - name: checkout 
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Install clang
+        run: |
+          sudo apt-get -y update && sudo apt-get -y install curl gnupg
+          curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/llvm.gpg
+          sudo echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/llvm.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy main" | sudo tee /etc/apt/sources.list.d/llvm.list > /dev/null
+          sudo apt-get -y update
+          sudo apt-get -y install clang-${{ matrix.clang_version }} clang-format-${{ matrix.clang_version }} clang-tidy-${{ matrix.node }}
+      - name: build
+        run: |
+          CC=clang-${{ matrix.clang_version }} CXX=clang++-${{ matrix.clang_version }} cmake -Bcmake-build-release -H. \
+                           -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake \
+                           -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
+                           -DCMAKE_BUILD_TYPE=Release \
+                           -DGSRAP_FIND_EIGEN=ON \
+                           -DGSRAP_FIND_SPDLOG=ON \
+                           -DGSRAP_FIND_THREADS=ON \
+                           -DGSRAP_BUILD_TESTS=ON \
+                           -DGSRAP_BUILD_SHARE=ON \
+                           -DGSRAP_OPT_FOR_CPU=ON \
+                           -DGSRAP_SHOW_OPT_RESULT=OFF
+          cd cmake-build-release
+          make -j4
+    
+      - name: run_test
+        run: |
+          cd cmake-build-release
+          make test
+
+  build-and-test-on-windows:
+    runs-on: windows-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth:
+          submodules: true
+      - name: Add Ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+      - name: Add cl and nmake to PATH # Needed to realize Ninja+cl.exe (PATH through cl.exe nmake.exe)
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Setup anew (or from cache) vcpkg (and does not build any package)
+        uses: lukka/run-vcpkg@v11
+      - name: build
+        shell: powershell
+        run: |
+          $buildDirectory = "build_win_x64"
+          mkdir $buildDirectory -Force -ErrorAction Stop | Out-Null
+          cd $buildDirectory
+          cmake  -G Ninja `
+                 -D CMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake `
+                 -D VCPKG_TARGET_TRIPLET=x64-windows-release `
+                 -D VCPKG_MANIFEST_MODE=ON `
+                 -D CMAKE_EXPORT_COMPILE_COMMANDS=1 `
+                 -D CMAKE_BUILD_TYPE=Release `
+                 -D GSRAP_FIND_EIGEN=ON `
+                 -D GSRAP_FIND_SPDLOG=ON `
+                 -D GSRAP_FIND_THREADS=ON `
+                 -D GSRAP_BUILD_TESTS=ON `
+                 -D GSRAP_BUILD_EXAMPLES=ON `
+                 -D GSRAP_BUILD_BENCHMARKS=ON `
+                 -D GSRAP_BUILD_SHARE=OFF `
+                 -D GSRAP_OPT_FOR_CPU=ON `
+                 -D GSRAP_SHOW_OPT_RESULT=OFF `
+                 -D GSRAP_WARNINGS_AS_ERRORS=OFF `
+                 -D GSRAP_APPLY_CLANG_FORMAT=OFF `
+                 ..
+          ninja -j4
+      - name: test
+        shell: powershell
+        run: |
+          $buildDirectory = "build_win_x64"
+          cd $buildDirectory
+          ninja test

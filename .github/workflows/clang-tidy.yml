@@ -1,0 +1,64 @@
+name: clang-tidy
+defaults:
+  run:
+    shell: bash -ieo pipefail {0}
+on:
+  push:
+    branches:
+      - master
+      - main
+      - develop
+  pull_request:
+    branches:
+      - master
+      - main
+      - develop
+jobs:
+  clang-tidy:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        clang_version: [18, 20]
+        # clang_version: [14, 15, 16, 17, 18, 20]
+    steps:
+      - name: checkout 
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+      - name: Install clang
+        run: |
+          sudo apt-get -y update && sudo apt-get -y install curl gnupg
+          curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/llvm.gpg
+          sudo echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/llvm.gpg] http://apt.llvm.org/jammy/ llvm-toolchain-jammy main" | sudo tee /etc/apt/sources.list.d/llvm.list > /dev/null
+          sudo apt-get -y update
+          sudo apt-get -y install clang-${{ matrix.clang_version }} clang-format-${{ matrix.clang_version }} clang-tidy-${{ matrix.node }}
+ 
+      - name: Install gtest
+        run: |
+          sudo apt-get -y install cmake
+          ls /usr/share/cmake-3.28/Modules/ | grep -i gtest
+          sudo apt-get -y install googletest
+      - name: configure
+        run: |
+          CC=clang-${{ matrix.clang_version }} CXX=clang++-${{ matrix.clang_version }} cmake -Bcmake-build-release -H. \
+                           -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake \
+                           -DCMAKE_EXPORT_COMPILE_COMMANDS=1 \
+                           -DCMAKE_BUILD_TYPE=Release \
+                           -DGSRAP_FIND_EIGEN=ON \
+                           -DGSRAP_FIND_SPDLOG=ON \
+                           -DGSRAP_FIND_THREADS=ON \
+                           -DGSRAP_BUILD_TESTS=ON \
+                           -DGSRAP_BUILD_SHARE=ON \
+                           -DGSRAP_OPT_FOR_CPU=ON \
+                           -DGSRAP_SHOW_OPT_RESULT=OFF
+
+          cp cmake-build-release/compile_commands.json ./compile_commands.json
+      - name: clang-tidy
+        run: |
+          alias clang-format='clang-format-${{ matrix.clang_version }}'
+          alias clang-tidy='clang-tidy-${{ matrix.clang_version }}'
+          bash ./script/do-clang-tidy.sh
+      - name: check git diff
+        run: |
+          git diff-index --exit-code --ignore-submodules HEAD

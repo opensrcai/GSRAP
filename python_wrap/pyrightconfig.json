@@ -1,0 +1,10 @@
+{
+  "ignore": [
+    "gsrap/__init__.py",
+  ],
+  "executionEnvironments": [
+    {
+      "root": "./",
+    }
+  ]
+}
