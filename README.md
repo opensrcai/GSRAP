@@ -18,6 +18,10 @@ It also has the following features:
 - Python wrapper
 - Tutorial and sample codes
 
+## Tutoral slides
+[Slide Link](https://speakerdeck.com/opensourceai/tutorial-of-geometric-solvers-for-reconstruction-and-pose-estimation-gsrap)  
+[Japanese Version](https://speakerdeck.com/opensourceai/tutorial-of-geometric-solvers-for-reconstruction-and-pose-estimation-gsrap-b750ec22-e3c1-40f1-bba8-e712e47072c1)  
+
 ## Usage
 - Relative pose estimation from 2D-2D point correspondences
 
