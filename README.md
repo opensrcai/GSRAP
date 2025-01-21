@@ -157,6 +157,18 @@ Please also check the demo on Google Colab.
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/opensrcai/GSRAP/blob/main/example_py/notebooks/PnpRelocalize.ipynb)
 
 
+## Acknowledgments
+
+This project is made possible by the following open-source projects:
+
+|Project name| License | Functionality |
+| :--- | :--- | :--- |
+| [Eigen3](https://gitlab.com/libeigen/eigen)| Mozilla Public License 2.0 | Linear Algebra Library |
+| [OpenCV](https://github.com/opencv/opencv)| Apache License, Version 2.0 | P3P solver |
+| [OpenGV](https://github.com/laurentkneip/opengv)| The 3-Clause BSD License | Essential solver, EPnP solver |
+
+This library was created thanks to these amazing projects. We are deeply grateful.
+
 ## LICENSE
 
 Copyright © 2024 Kai Okawa, Mikiya Shibuya.  
