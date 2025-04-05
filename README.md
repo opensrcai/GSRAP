@@ -172,6 +172,6 @@ This library was created thanks to these amazing projects. We are deeply gratefu
 ## LICENSE
 
 Copyright © 2024 Kai Okawa, Mikiya Shibuya.  
-Released under the Pre-Open Source Verification License.  
+Released under the [Pre-Open Source Verification License](https://opensrcai.org/posvl/posvl-2/).  
 
 Please see the [LICENSE](LICENSE) file for details.
