@@ -21,7 +21,7 @@ else (${${PROJECT_PREFIX}_BUILD_SHARE})
 endif (${${PROJECT_PREFIX}_BUILD_SHARE})
 
 set_source_files_properties(${${PROJECT_PREFIX}_SOURCE} PROPERTIES
-  COMPILE_FLAGS "$<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded>$<$<CXX_COMPILER_ID:AppleClang>:-Wall -Wextra -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded>$<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wredundant-decls -Wcast-align -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Winvalid-pch -Wredundant-decls -Wformat=2 -Wmissing-format-attribute -Wformat-nonliteral>$<$<CXX_COMPILER_ID:MSVC>:/W4>"
+  COMPILE_FLAGS "$<$<CXX_COMPILER_ID:Clang>:-Wall -Wextra -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-unsafe-buffer-usage>$<$<CXX_COMPILER_ID:AppleClang>:-Wall -Wextra -Weverything -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded>$<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wredundant-decls -Wcast-align -Wmissing-declarations -Wmissing-include-dirs -Wswitch-enum -Wswitch-default -Winvalid-pch -Wredundant-decls -Wformat=2 -Wmissing-format-attribute -Wformat-nonliteral>$<$<CXX_COMPILER_ID:MSVC>:/W4>"
   )
 
 if (${${PROJECT_PREFIX}_WARNINGS_AS_ERRORS})
